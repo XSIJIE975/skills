@@ -2,15 +2,15 @@
 
 [![skills.sh](https://skills.sh/b/XSIJIE975/skills)](https://skills.sh/XSIJIE975/skills)
 
-Agent skill 集合。
+My collection of AI agent skills.
 
 ## Skills
 
 | Skill | Description |
 |-------|-------------|
-| [api-codegen-runner](api-codegen-runner/) | 从 OpenAPI/Apifox 生成 TypeScript API 代码 |
-| [api-codegen-universal](api-codegen-universal/) | OpenAPI 和 Apifox 的通用解析适配器 |
-| [req-to-code](req-to-code/) | 从需求文档到代码交付的全流程工作流 |
+| [api-codegen-runner](api-codegen-runner/) | Generate TypeScript API code from OpenAPI/Apifox specs |
+| [api-codegen-universal](api-codegen-universal/) | Universal parser/adapter for OpenAPI and Apifox |
+| [req-to-code](req-to-code/) | End-to-end workflow from requirements to shipped code |
 
 ## Install All
 
