@@ -29,8 +29,6 @@
 
 ### 2. 创建变更目录（自动化，无交互）
 
-OpenSpec CLI 只提供目录创建和基础元数据写入。**实际的 spec 文件（proposal.md、design.md 等）由 Agent 直接写 markdown 文件生成**，而非 CLI 命令。
-
 变更命名格式：`<type>-<YYYYMMDD-HHMMSS>-<short-desc>`
 
 执行 `openspec new change` 创建变更目录（非交互模式）：
@@ -45,14 +43,53 @@ openspec new change <change-name> \
 ```
 openspec/changes/<change-name>/
 ├── .openspec.yaml     # 变更元数据
-├── proposal.md        # 变更提案（由 Agent 生成）
-├── specs/             # 需求规格目录（由 Agent 生成）
+├── proposal.md        # 变更提案（通过 openspec instructions 生成）
+├── specs/             # 需求规格目录（通过 openspec instructions 生成）
 │   └── requirements.md
-├── design.md          # 技术设计（由 Agent 生成）
-└── tasks.md           # 任务清单（由 Agent 生成）
+├── design.md          # 技术设计（通过 openspec instructions 生成）
+└── tasks.md           # 任务清单（通过 openspec instructions 生成）
 ```
 
-> **注意**：`openspec new change` 只创建目录和 `.openspec.yaml`。后续所有 `.md` 文件由 Agent 在该步骤中直接写入，不需要 OpenSpec 提供文件模板命令。OpenSpec 本身不提供交互式提出/审查循环，审阅机制由本阶段的门禁系统实现。
+### 2a. 生成 spec 文件（使用 OpenSpec 指令模板）
+
+不要直接写 markdown 文件。每个 spec 文件应通过 `openspec instructions` 获取 OpenSpec 的模板指令，然后基于模板生成。
+
+**流程**：
+
+```bash
+# 1. 获取 proposal 模板和上下文指令
+openspec instructions proposal --change <change-name> --json
+
+# 2. 根据返回的模板内容生成 proposal.md
+#    模板中包含：章节结构、必填字段、依赖上下文
+
+# 3. 获取 specs 模板
+openspec instructions specs --change <change-name> --json
+
+# 4. 根据模板生成 specs/requirements.md
+
+# 5. 获取 design 模板
+openspec instructions design --change <change-name> --json
+
+# 6. 根据模板生成 design.md
+
+# 7. 获取 tasks 模板
+openspec instructions tasks --change <change-name> --json
+
+# 8. 根据模板生成 tasks.md
+```
+
+`openspec instructions` 返回的内容包括：
+- 当前 artifact 的模板（标题结构、章节要求）
+- 依赖的 artifact 内容（用于上下文关联）
+- 项目配置中的自定义规则
+- 必填字段和可选字段标记
+
+Agent 根据这些指令生成 spec 文件，确保文件结构和元数据符合 OpenSpec 规范。
+
+> **注意**：`openspec new change` 只创建目录和 `.openspec.yaml`，不生成 spec 文件内容。
+> spec 文件通过 `openspec instructions` 获取模板指令后由 Agent 填充。
+> 用 `openspec status --change <change-name> --json` 验证 artifacts 完整性。
 
 ### 3. 门禁 1：提案 + 需求规格（Human-in-the-Loop）
 
