@@ -19,31 +19,31 @@
 
 ### 1. 准备审查材料
 
-收集并写入临时目录（`/tmp/req-to-code/deep-review/`）：
-- `code-changes.diff` — 完整 diff（超 500KB 按目录拆分）
+收集并写入系统临时目录（`req-to-code/deep-review/`）：
+- `code-changes.diff` — 完整 diff
 - `change-stats.txt` — 变更统计（`git diff --stat`）
 - `changed-files.txt` — 变更文件列表
 - `requirements.md` — 需求规格（从 OpenSpec 目录或 PR 描述收集）
 - `test-report.md` — 测试结果和覆盖率
 
+**diff 拆分策略**（完整 diff 超 500KB 时）：
+- 按顶层目录拆分（`src/`、`tests/`、`docs/` 等各生成一个 diff）
+- 每个子 diff 独立审查
+- 审查报告合并为一份，统一分类 Critical/Major/Minor
+
 ### 2. 执行审查
 
-使用 Codex 执行两轮审查：
+审查者必须与代码作者独立。使用 Codex CLI 执行审查。
 
-**第一轮：$deep-interview**
-- 审查代码正确性、逻辑完整性
-- 对照需求规格验证实现
-- 输出：问题列表 + 严重级别
+审查维度：正确性、安全性、性能、可维护性、边界条件。
 
-**第二轮：$prometheus-strict**
-- 压力测试：边界条件、异常路径
-- 安全审查：注入、权限、敏感数据
-- 性能审查：N+1 查询、内存泄漏、并发问题
-- 输出：问题列表 + 修复建议
+**审查方式**（按优先级）：
 
-**降级方案**（Codex 不可用时）：
-- 使用 Claude Code 内置审查
-- 审查维度不变，但缺少独立第三方视角
+1. **Codex CLI + OMX** — `codex "$deep-interview ..."` 第一轮，`codex "$prometheus-strict ..."` 第二轮
+2. **Codex CLI 无 OMX** — 两次 `codex "审查以下代码变更..."` 从不同角度覆盖所有审查维度
+3. **Codex CLI 不可用** — 使用 `task(subagent_type="oracle", ...)` 做独立审查
+
+审查 prompt 中需注入需求规格和变更 diff。
 
 ### 3. 分析审查结果
 

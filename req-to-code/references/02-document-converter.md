@@ -29,8 +29,15 @@
 ### 2. 执行转换
 
 调用 markitdown MCP 的 `convert_to_markdown(uri)` 工具，URI 格式：
+
+**普通路径**（Linux/macOS/Git Bash）：
 - 本地文件：`file:///absolute/path/to/document.docx`
 - 远程 URL：`https://example.com/doc.pdf`
+
+**Windows 路径**：
+- 本地文件：`file:///C:/Users/name/document.docx`（Agent 自动处理转义）
+
+
 
 ### 3. 输出清理
 

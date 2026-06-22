@@ -11,7 +11,7 @@
 
 ## 输出
 
-- 交付报告（`archive/<change-name>/delivery-report.md`）
+- 交付报告（`openspec/changes/archive/<change-name>/delivery-report.md`）
 - 归档的变更目录
 - 清理后的项目状态
 
@@ -41,7 +41,7 @@
 
 ## 需求覆盖
 - 需求规格：<path>
-- 覆盖率：100%（每个需求对应一个或多个任务）
+- 覆盖率：<Z>%（不低于项目原有水平，如可用）
 
 ## 交付物
 - 代码变更：<N> 个文件，+<X> / -<Y> 行
@@ -61,7 +61,9 @@
 ### 3. 执行归档
 
 - 将变更目录移至 `openspec/changes/archive/<change-name>/`
-- 清理 `/tmp/req-to-code/` 临时文件
+  - 交付报告也存放在该目录下：`openspec/changes/archive/<change-name>/delivery-report.md`
+  - 统一使用此路径，不使用独立 `archive/` 目录
+- 清理临时目录
 - 删除 `.req-to-code-state.json`
 - 更新 `openspec/openspec.json` 中的归档记录
 
