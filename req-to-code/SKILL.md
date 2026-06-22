@@ -117,7 +117,7 @@ compatibility: "需要安装：OpenCode (latest)、Codex CLI (latest)、OpenSpec
 
 ## 配置和执行
 
-详见 [references/10-prerequisites.md](references/10-prerequisites.md)。
+详见 [references/09-prerequisites.md](references/09-prerequisites.md)。
 
 - 配置优先级：OMO > OMX > 默认
 
