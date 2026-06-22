@@ -42,12 +42,21 @@ openspec/
 
 > 如果已有 `openspec/` 目录，用 `openspec update` 刷新技能文件。
 
-### 2. 需求文档转 specs
+### 2. 需求探索与转换（Explore）
 
-如果有需求文档（来自阶段 2 的 markdown），将其转换为 OpenSpec 规格格式。
-使用 OpenSpec 的 **explore 工作流**：Agent 读取需求文档，按领域拆分，写入 `openspec/specs/` 目录。
+这是将原始需求转化为 OpenSpec 规格的环节。使用 OpenSpec 的 **explore 工作流**，以**对话形式**与用户交互，理解需求并生成 `openspec/specs/` 下的规格文件。
 
-**操作**：读取需求 markdown，将其转换为 OpenSpec specs 格式：
+**工作方式**（对应 OpenSpec 的 `/opsx:explore` 命令）：
+
+```
+Agent 与用户对话：
+  1. 告知用户将把需求文档转为 OpenSpec 规格格式
+  2. 读取需求 markdown 文件，理解内容和结构
+  3. 与用户确认：按哪些领域拆分？有没有遗漏的需求？
+  4. 生成 openspec/specs/ 目录结构：
+```
+
+生成格式（每个需求按领域拆分）：
 
 ```
 openspec/specs/<domain>/spec.md
@@ -64,52 +73,47 @@ The system SHALL/MUST/SHOULD <行为描述>。
 ```
 
 **规则**：
-- 每个需求按领域拆分为独立文件（`auth/spec.md`、`payments/spec.md`、`ui/spec.md` 等）
+- 每个需求按领域拆分为独立文件（`auth/spec.md`、`payments/spec.md` 等）
 - 每个需求用 SHALL/MUST/SHOULD 描述行为
 - 每个需求配 1-N 个 Given/When/Then 场景
 - spec 只写行为，不写实现细节
-- 如果没有需求文档或用户跳过此步，直接进入第 3 步
+- 如果用户没有需求文档，或者需求已直接在 `openspec/specs/` 中，跳过此步
+
+> 此步骤是**交互式**的——Agent 与用户对话确认拆分方式和需求覆盖，不是机械式读写。
+> 转换完成后，`openspec/specs/` 目录就是后续变更的基础规格。
 
 ### 3. 创建变更（Propose）
 
-使用 OpenSpec 的 **propose 工作流**：一次性生成提案、delta specs、技术设计、任务清单。
+规格就绪后，创建变更。使用 OpenSpec 的 **propose 工作流**（对应 `/opsx:propose` 命令），一次性生成提案、delta specs、技术设计、任务清单。
 
-**操作**：
+`/opsx:propose` 的内部流程：
 
 ```bash
+# 1. 创建变更目录
 openspec new change <change-name> \
   --description "Type: <feature|bugfix|refactor> - <short description>" \
   --json
+
+# 2. AI 自动为每个 artifact 调用 openspec instructions 获取模板，
+#    基于模板生成内容（AI 负责填充，不直接写 markdown）
 ```
 
 生成目录结构：
 ```
 openspec/changes/<change-name>/
 ├── .openspec.yaml     # 变更元数据
-├── proposal.md        # 变更提案
-├── specs/             # Delta 规格（只包含本次变更的需求）
+├── proposal.md        # 变更提案（背景、目标、非目标、范围）
+├── specs/             # Delta 规格（只包含本次变更新增/修改的需求）
 │   └── <domain>/
-│       └── spec.md
-├── design.md          # 技术设计
-└── tasks.md           # 任务清单
+│       └── spec.md    # ADDED / MODIFIED / REMOVED 格式
+├── design.md          # 技术设计（架构、数据模型、API、技术选型）
+└── tasks.md           # 任务清单（带依赖顺序和 checkboxes）
 ```
 
-**生成 artifacts**：
-Artifact 文件通过 OpenSpec CLI 的 `openspec instructions` 获取模板指令，Agent 基于模板填充内容。不直接写 markdown。
-
-```bash
-# 获取各 artifact 的模板指令
-openspec instructions proposal --change <change-name> --json
-openspec instructions specs --change <change-name> --json
-openspec instructions design --change <change-name> --json
-openspec instructions tasks --change <change-name> --json
-```
-
-`openspec instructions` 返回：
+`openspec instructions` 返回的内容包含：
 - 当前 artifact 的模板（标题结构、章节要求）
 - 依赖的 artifact 内容（用于上下文关联）
 - 项目配置中的自定义规则（如 tech stack、API 风格等）
-- 必填字段和可选字段标记
 
 Agent 根据模板指令生成文件，确保符合 OpenSpec schema 规范。
 
